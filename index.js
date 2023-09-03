@@ -3,13 +3,10 @@ const objetos = []
 const objetosCompletos = []
 
 async function obtenerTodos() {
-    if (localStorage.getItem('pokemones')) {
-        let revisar = JSON.parse(localStorage.getItem('pokemones'))
-        if (revisar != []) {
-
-            return
-        }
-    }    
+    if (comprobar()) {
+        cargar()
+        return
+    }
     objetos.length = 0
     objetosCompletos.length = 0
     const respuesta = await fetch(url)
@@ -57,6 +54,24 @@ async function obtenerDetalles(dato) {
 function almacenar() {
     const pokemones = JSON.stringify(objetosCompletos)
     localStorage.setItem('pokemones', pokemones)
+}
+
+function comprobar() {
+    if (localStorage.getItem('pokemones')) {
+        let revisar = JSON.parse(localStorage.getItem('pokemones'))
+        if (revisar != []) {
+            return true
+        }
+    }
+    return false
+}
+
+function cargar() {
+    
+}
+
+function flitrar(params) {
+    
 }
 
 obtenerTodos()

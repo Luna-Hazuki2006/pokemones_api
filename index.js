@@ -9,19 +9,19 @@ async function obtenerTodos() {
         cargar()
         return
     }
-    obtenerListas()
+    await obtenerListas()
 }
 
 async function obtenerListas() {
     let objetos = []
+    original = []
     objetosCompletos = []
     const respuesta = await fetch(url)
     if (!respuesta.ok) {
         throw new Error(respuesta.statusText)
     }
-    const data = await respuesta.json()
-    original = data
-    objetos = data['results']
+    original = await respuesta.json()
+    objetos = original['results']
     for (const dato of objetos) {
         await obtenerDetalles(dato)
     }
@@ -35,42 +35,27 @@ async function obtenerDetalles(dato) {
         throw new Error(respuesta.statusText)
     }
     const data = await respuesta.json()
-    // const habilidades = [...data['abilities']]
-    // const items = [...data['held_items']]
-    // const movimientos = [...data['moves']]
-    // const estadisticas = [...data['stats']]
-    // const tipos = [...data['types']]
-    // for (let i = 0; i < movimientos.length; i++) {
-    //     movimientos[i] = movimientos[i]['move']
-    // }
-    // const pokemon = {
-    //     nombre: data['name'], 
-    //     altura: data['height'], 
-    //     peso: data['weight'], 
-    //     items: items, 
-    //     movimientos: movimientos, 
-    //     habilidades: habilidades, 
-    //     estadisticas: estadisticas, 
-    //     tipos: tipos
-    // }
     objetosCompletos.push(data)
 }
 
 function almacenar() {
+    console.log('por aqui');
     const pokemones = JSON.stringify(objetosCompletos)
+    console.log(objetosCompletos);
     localStorage.setItem('pokemones', pokemones)
-    const lista = json.stringify(original)
-    localStorage.setItem('lista', lista)
+    const listado = JSON.stringify(original)
+    console.log(original);
+    localStorage.setItem('lista', listado)
 }
 
 function comprobar() {
     if (localStorage.getItem('pokemones') && 
         localStorage.getItem('lista')) {
         let revisar = JSON.parse(localStorage.getItem('pokemones'))
-        let lista = JSON.parse(localStorage.getItem('lista'))
-        if (revisar != [] && lista != []) {
+        let listado = JSON.parse(localStorage.getItem('lista'))
+        if (revisar != [] && listado != []) {
             objetosCompletos = revisar
-            original = lista
+            original = listado
             return true
         }
         return false
@@ -80,6 +65,7 @@ function comprobar() {
 }
 
 function cargar() {
+    lista.innerHTML = ''
     let cosas = Object.keys(objetosCompletos[0])
     console.log(cosas);
     console.log(objetosCompletos[19]);
@@ -113,21 +99,25 @@ function cargar() {
     }
     let anterior = document.querySelector('.flechas:first-of-type')
     if (!original['previous']) {
-        anterior.removeEventListener('click')
+        anterior.addEventListener('click', () => {})
     } else {
-        anterior.addEventListener('click', () => {
-            url = original['previous']
-            obtenerListas()
+        anterior.addEventListener('click', async () => {
+            if (original['previous']) {
+                url = original['previous']
+                await obtenerListas()   
+            }
         })
+        return
     }
-    anterior.addEventListener()
     let siguiente = document.querySelector('.flechas:last-of-type')
     if (!original['next']) {
-        siguiente.removeEventListener('click')
+        siguiente.addEventListener('click', () => {})
     } else {
-        siguiente.addEventListener('click', () => {
-            url = original['next']
-            obtenerListas()
+        siguiente.addEventListener('click', async () => {
+            if (original['next']) {
+                url = original['next']
+                await obtenerListas()   
+            }
         })
     }
     for (const esto of objetosCompletos) {

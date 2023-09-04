@@ -1,5 +1,6 @@
 body {
     background-color: lavender;
+    font-family: monospace;
 }
 
 #paginacion {
@@ -36,6 +37,18 @@ section:nth-child(1) {
 
 .invisible {
     display: none;
+}
+
+button {
+    border-radius: 5px;
+    background-color: lavenderblush;
+    padding: 5px;
+}
+
+input {
+    padding: 5px;
+    background-color: bisque;
+    border-radius: 5px;
 }
 
 table, td, th {

@@ -1,8 +1,7 @@
-// let url = 'https://pokeapi.co/api/v2/pokemon/'
-let url = 'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20'
+let url = 'https://pokeapi.co/api/v2/pokemon/'
 const paginas = document.getElementById('paginacion')
 const lista = document.getElementById('lista')
-let objetos = []
+let original = []
 let objetosCompletos = []
 
 async function obtenerTodos() {
@@ -10,22 +9,22 @@ async function obtenerTodos() {
         cargar()
         return
     }
-    console.log('pasa segundo');
-    objetos = []
+    obtenerListas()
+}
+
+async function obtenerListas() {
+    let objetos = []
     objetosCompletos = []
     const respuesta = await fetch(url)
     if (!respuesta.ok) {
         throw new Error(respuesta.statusText)
     }
     const data = await respuesta.json()
+    original = data
     objetos = data['results']
-    console.log(data);
-    console.log(objetos);
     for (const dato of objetos) {
-        objetos.push(dato)
         await obtenerDetalles(dato)
     }
-    console.log(objetos);
     almacenar()
     cargar()
 }
@@ -58,16 +57,20 @@ async function obtenerDetalles(dato) {
 }
 
 function almacenar() {
-    console.log('llegó');
     const pokemones = JSON.stringify(objetosCompletos)
     localStorage.setItem('pokemones', pokemones)
+    const lista = json.stringify(original)
+    localStorage.setItem('lista', lista)
 }
 
 function comprobar() {
-    if (localStorage.getItem('pokemones')) {
+    if (localStorage.getItem('pokemones') && 
+        localStorage.getItem('lista')) {
         let revisar = JSON.parse(localStorage.getItem('pokemones'))
-        if (revisar != []) {
+        let lista = JSON.parse(localStorage.getItem('lista'))
+        if (revisar != [] && lista != []) {
             objetosCompletos = revisar
+            original = lista
             return true
         }
         return false
@@ -107,6 +110,25 @@ function cargar() {
             })
         })
         flecha.after(dato)
+    }
+    let anterior = document.querySelector('.flechas:first-of-type')
+    if (!original['previous']) {
+        anterior.removeEventListener('click')
+    } else {
+        anterior.addEventListener('click', () => {
+            url = original['previous']
+            obtenerListas()
+        })
+    }
+    anterior.addEventListener()
+    let siguiente = document.querySelector('.flechas:last-of-type')
+    if (!original['next']) {
+        siguiente.removeEventListener('click')
+    } else {
+        siguiente.addEventListener('click', () => {
+            url = original['next']
+            obtenerListas()
+        })
     }
     for (const esto of objetosCompletos) {
         let caso = document.createElement('div')

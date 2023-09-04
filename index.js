@@ -26,7 +26,7 @@ async function obtenerListas() {
         await obtenerDetalles(dato)
     }
     almacenar()
-    cargar()
+    await cargar()
 }
 
 async function obtenerDetalles(dato) {
@@ -64,18 +64,18 @@ function comprobar() {
     }
 }
 
-function cargar() {
+async function cargar() {
     lista.innerHTML = ''
-    let cosas = Object.keys(objetosCompletos[0])
-    console.log(cosas);
-    console.log(objetosCompletos[19]);
     let flecha = document.querySelector('#paginacion a:first-child')
     limpiar()
+    let muchos = Object.keys(objetosCompletos[0])
+    console.log(muchos);
+    console.log(objetosCompletos[0]);
     for (let i = objetosCompletos.length - 1; i >= 0; i--) {
         let dato = document.createElement('a')
         let id = objetosCompletos[i]['id']
         dato.innerText = id
-        dato.id = id
+        dato.id = 'a' + id
         dato.href = '#' + id
         dato.addEventListener('click', () => {
             let muchos = document.querySelectorAll('#lista div')
@@ -88,7 +88,7 @@ function cargar() {
             })
             muchos = document.querySelectorAll('#paginacion a')
             muchos.forEach((esto) => {
-                if (esto.id != id) {
+                if (esto.id != ('a' + id)) {
                     esto.classList.remove('activa')
                 } else {
                     esto.classList.add('activa')
@@ -107,7 +107,6 @@ function cargar() {
                 await obtenerListas()   
             }
         })
-        return
     }
     let siguiente = document.querySelector('.flechas:last-of-type')
     if (!original['next']) {
@@ -255,8 +254,48 @@ function cargar() {
         }
         table.appendChild(tr)
         caso.appendChild(table)
+        p = document.createElement('p')
+        if ([...esto['moves']].length > 0) {
+            p.innerText = 'Movimientos: '
+            let ul = document.createElement('ul')
+            for (const uno of [...esto['moves']]) {
+                let li = document.createElement('li')
+                li.innerText = uno['move']['name']
+                ul.appendChild(li)
+            }
+            caso.appendChild(p)
+            caso.appendChild(ul)
+        } else {
+            p.innerText = 'Movimientos: no tiene'
+            caso.appendChild(p)
+        }
+        p = document.createElement('p')
+        let movimientos = await obtenerMovimientos(esto['location_area_encounters'])
+        if (movimientos.length > 0) {
+            p.innerText = 'Lugares de encuentro: '
+            let ul = document.createElement('ul')
+            for (const uno of movimientos) {
+                let li = document.createElement('li')
+                li.innerText = uno['location_area']['name']
+                ul.appendChild(li)
+            }
+            caso.appendChild(p)
+            caso.appendChild(ul)
+        } else {
+            p.innerText = 'Lugares de encuentro: no tiene'
+            caso.appendChild(p)
+        }
         lista.appendChild(caso)
     }
+}
+
+async function obtenerMovimientos(campo) {
+    const respuesta = await fetch(campo)
+    if (!respuesta.ok) {
+        throw new Error(respuesta.statusText)
+    }
+    const data = await respuesta.json()
+    return [...data]
 }
 
 function limpiar() {
@@ -266,8 +305,25 @@ function limpiar() {
     }
 }
 
-function flitrar() {
-    
+function filtrar() {
+    console.log('incluso aqui');
+    let filtrado = document.getElementById('filtrado').value
+    let ver = []
+    for (const esto of objetosCompletos) {
+        if (String(esto['name']).includes(filtrado)) {
+            console.log(esto['name']);
+            let pokemon = document.getElementById(esto['id'])
+            ver.push(pokemon)
+        }
+    }
+    let todos = document.querySelectorAll('#lista div')
+    for (const esto of todos) {
+        if (ver.indexOf(esto) == -1) {
+            esto.classList.add('invisible')
+        } else {
+            esto.classList.remove('invisible')
+        }
+    }
 }
 
 obtenerTodos()

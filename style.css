@@ -23,3 +23,7 @@ section:nth-child(1) {
 .invisible {
     display: none;
 }
+
+table, td, th {
+    border: 1px solid black;
+}

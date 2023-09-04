@@ -1,5 +1,7 @@
-const url = 'https://pokeapi.co/api/v2/pokemon/'
+// let url = 'https://pokeapi.co/api/v2/pokemon/'
+let url = 'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20'
 const paginas = document.getElementById('paginacion')
+const lista = document.getElementById('lista')
 let objetos = []
 let objetosCompletos = []
 
@@ -8,6 +10,7 @@ async function obtenerTodos() {
         cargar()
         return
     }
+    console.log('pasa segundo');
     objetos = []
     objetosCompletos = []
     const respuesta = await fetch(url)
@@ -15,14 +18,16 @@ async function obtenerTodos() {
         throw new Error(respuesta.statusText)
     }
     const data = await respuesta.json()
-    objetos = [...data['results']]
-    console.log(muchos);
+    objetos = data['results']
+    console.log(data);
+    console.log(objetos);
     for (const dato of objetos) {
         objetos.push(dato)
         await obtenerDetalles(dato)
     }
     console.log(objetos);
     almacenar()
+    cargar()
 }
 
 async function obtenerDetalles(dato) {
@@ -31,28 +36,29 @@ async function obtenerDetalles(dato) {
         throw new Error(respuesta.statusText)
     }
     const data = await respuesta.json()
-    const habilidades = [...data['abilities']]
-    const items = [...data['held_items']]
-    const movimientos = [...data['moves']]
-    const estadisticas = [...data['stats']]
-    const tipos = [...data['types']]
-    for (let i = 0; i < movimientos.length; i++) {
-        movimientos[i] = movimientos[i]['move']
-    }
-    const pokemon = {
-        nombre: data['name'], 
-        altura: data['height'], 
-        peso: data['weight'], 
-        items: items, 
-        movimientos: movimientos, 
-        habilidades: habilidades, 
-        estadisticas: estadisticas, 
-        tipos: tipos
-    }
+    // const habilidades = [...data['abilities']]
+    // const items = [...data['held_items']]
+    // const movimientos = [...data['moves']]
+    // const estadisticas = [...data['stats']]
+    // const tipos = [...data['types']]
+    // for (let i = 0; i < movimientos.length; i++) {
+    //     movimientos[i] = movimientos[i]['move']
+    // }
+    // const pokemon = {
+    //     nombre: data['name'], 
+    //     altura: data['height'], 
+    //     peso: data['weight'], 
+    //     items: items, 
+    //     movimientos: movimientos, 
+    //     habilidades: habilidades, 
+    //     estadisticas: estadisticas, 
+    //     tipos: tipos
+    // }
     objetosCompletos.push(data)
 }
 
 function almacenar() {
+    console.log('llegó');
     const pokemones = JSON.stringify(objetosCompletos)
     localStorage.setItem('pokemones', pokemones)
 }
@@ -64,12 +70,16 @@ function comprobar() {
             objetosCompletos = revisar
             return true
         }
+        return false
+    } else {
+        return false
     }
-    return false
 }
 
 function cargar() {
     let cosas = Object.keys(objetosCompletos[0])
+    console.log(cosas);
+    console.log(objetosCompletos[19]);
     let flecha = document.querySelector('#paginacion a:first-child')
     limpiar()
     for (let i = objetosCompletos.length - 1; i >= 0; i--) {
@@ -79,14 +89,162 @@ function cargar() {
         dato.id = id
         dato.href = '#' + id
         dato.addEventListener('click', () => {
-            let muchos = document.querySelectorAll('#lista div:not(#' + id + ')')
-            muchos.forEach((esto) => esto.classList.add('invisible'))
-            let actual = document.getElementById(id)
-            actual.classList.remove('invisible')
+            let muchos = document.querySelectorAll('#lista div')
+            muchos.forEach((esto) => {
+                if (esto.id != id) {
+                    esto.classList.add('invisible')
+                } else {
+                    esto.classList.remove('invisible')
+                }
+            })
+            muchos = document.querySelectorAll('#paginacion a')
+            muchos.forEach((esto) => {
+                if (esto.id != id) {
+                    esto.classList.remove('activa')
+                } else {
+                    esto.classList.add('activa')
+                }
+            })
         })
         flecha.after(dato)
     }
-
+    for (const esto of objetosCompletos) {
+        let caso = document.createElement('div')
+        caso.id = esto['id']
+        caso.classList.add('invisible')
+        let p = document.createElement('p')
+        p.innerText = 'Nombre: ' + esto['name']
+        caso.appendChild(p)
+        p = document.createElement('p')
+        p.innerText = 'Peso: ' + esto['weight']
+        caso.appendChild(p)
+        p = document.createElement('p')
+        p.innerText = 'Altura: ' + esto['height']
+        caso.appendChild(p)
+        p = document.createElement('p')
+        p.innerText = 'Experiencia base: ' + esto['base_experience']
+        caso.appendChild(p)
+        p = document.createElement('p')
+        p.innerText = 'Por defecto: ' + ((esto['is_default']) ? 'Si' : 'No')
+        caso.appendChild(p)
+        p = document.createElement('p')
+        if ([...esto['types']].length > 1) {
+            p.innerText = 'Tipos: '
+            let ul = document.createElement('ul')
+            for (const uno of [...esto['types']]) {
+                let li = document.createElement('li')
+                li.innerText = uno['type']['name']
+                ul.appendChild(li)
+            }
+            caso.appendChild(p)
+            caso.appendChild(ul)
+        } else {
+            p.innerText = 'Tipo: ' + esto['types'][0]['type']['name']
+            caso.appendChild(p)
+        }
+        p = document.createElement('p')
+        if ([...esto['held_items']].length == 0) {
+            p.innerText = 'Items sostenidos: ninguno'
+            caso.appendChild(p)
+        } else {
+            p.innerText = 'Items sostenidos: '
+            let ul = document.createElement('ul')
+            for (const uno of [...esto['held_items']]) {
+                let li = document.createElement('li')
+                li.innerText = uno['item']['name']
+                ul.appendChild(li)
+            }
+            caso.appendChild(p)
+            caso.appendChild(ul)
+        }
+        p = document.createElement('p')
+        p.innerText = 'Orden: ' + esto['order']
+        caso.appendChild(p)
+        p = document.createElement('p')
+        p.innerText = 'Estadísticas: '
+        caso.appendChild(p)
+        let table = document.createElement('table')
+        let tr = document.createElement('tr')
+        let th = document.createElement('th')
+        th.innerText = 'Nombre'
+        tr.appendChild(th)
+        th = document.createElement('th')
+        th.innerText = 'Base'
+        tr.appendChild(th)
+        th = document.createElement('th')
+        th.innerText = 'Esfuerzo'
+        tr.appendChild(th)
+        table.appendChild(tr)
+        for (const uno of [...esto['stats']]) {
+            tr = document.createElement('tr')
+            let td = document.createElement('td')
+            td.innerText = uno['stat']['name']
+            tr.appendChild(td)
+            td = document.createElement('td')
+            td.innerText = uno['base_stat']
+            tr.appendChild(td)
+            td = document.createElement('td')
+            td.innerText = uno['effort']
+            tr.appendChild(td)
+            table.appendChild(tr)
+        }
+        caso.appendChild(table)
+        p = document.createElement('p')
+        p.innerText = 'Habilidades: '
+        caso.appendChild(p)
+        table = document.createElement('table')
+        tr = document.createElement('tr')
+        th = document.createElement('th')
+        th.innerText = 'Nombre'
+        tr.appendChild(th)
+        th = document.createElement('th')
+        th.innerText = 'Oculta'
+        tr.appendChild(th)
+        table.appendChild(tr)
+        for (const uno of [...esto['abilities']]) {
+            tr = document.createElement('tr')
+            let td = document.createElement('td')
+            td.innerText = uno['ability']['name']
+            tr.appendChild(td)
+            td = document.createElement('td')
+            td.innerText = (uno['is_hidden']) ? 'Si' : 'No'
+            tr.appendChild(td)
+            table.appendChild(tr)
+        }
+        caso.appendChild(table)
+        p = document.createElement('p')
+        p.innerText = 'Imágenes: '
+        caso.appendChild(p)
+        table = document.createElement('table')
+        tr = document.createElement('tr')
+        for (const uno of Object.keys(esto['sprites'])) {
+            if (uno == 'other' || uno == 'versions') {
+                continue
+            }
+            th = document.createElement('th')
+            th.innerText = uno
+            tr.appendChild(th)
+        }
+        table.appendChild(tr)
+        tr = document.createElement('tr')
+        for (const uno of Object.keys(esto['sprites'])) {
+            if (uno == 'other' || uno == 'versions') {
+                continue
+            }
+            let td = document.createElement('td')
+            if (esto['sprites'][uno]) {
+                let img = document.createElement('img')
+                img.src = esto['sprites'][uno]
+                td.appendChild(img)
+            } else {
+                td.innerText = 'no tiene'
+            }
+            tr.appendChild(td)
+        }
+        table.appendChild(tr)
+        caso.appendChild(table)
+        lista.appendChild(caso)
+    }
 }
 
 function limpiar() {

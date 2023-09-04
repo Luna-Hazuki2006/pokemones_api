@@ -1,22 +1,24 @@
 const url = 'https://pokeapi.co/api/v2/pokemon/'
-const objetos = []
-const objetosCompletos = []
+const paginas = document.getElementById('paginacion')
+let objetos = []
+let objetosCompletos = []
 
 async function obtenerTodos() {
     if (comprobar()) {
         cargar()
         return
     }
-    objetos.length = 0
-    objetosCompletos.length = 0
+    objetos = []
+    objetosCompletos = []
     const respuesta = await fetch(url)
     if (!respuesta.ok) {
         throw new Error(respuesta.statusText)
     }
     const data = await respuesta.json()
-    const muchos = [...data['results']]
+    objetos = [...data['results']]
     console.log(muchos);
-    for (const dato of muchos) {
+    for (const dato of objetos) {
+        objetos.push(dato)
         await obtenerDetalles(dato)
     }
     console.log(objetos);
@@ -48,7 +50,6 @@ async function obtenerDetalles(dato) {
         tipos: tipos
     }
     objetosCompletos.push(data)
-    objetos.push(pokemon)
 }
 
 function almacenar() {
@@ -60,6 +61,7 @@ function comprobar() {
     if (localStorage.getItem('pokemones')) {
         let revisar = JSON.parse(localStorage.getItem('pokemones'))
         if (revisar != []) {
+            objetosCompletos = revisar
             return true
         }
     }
@@ -67,10 +69,34 @@ function comprobar() {
 }
 
 function cargar() {
-    
+    let cosas = Object.keys(objetosCompletos[0])
+    let flecha = document.querySelector('#paginacion a:first-child')
+    limpiar()
+    for (let i = objetosCompletos.length - 1; i >= 0; i--) {
+        let dato = document.createElement('a')
+        let id = objetosCompletos[i]['id']
+        dato.innerText = id
+        dato.id = id
+        dato.href = '#' + id
+        dato.addEventListener('click', () => {
+            let muchos = document.querySelectorAll('#lista div:not(#' + id + ')')
+            muchos.forEach((esto) => esto.classList.add('invisible'))
+            let actual = document.getElementById(id)
+            actual.classList.remove('invisible')
+        })
+        flecha.after(dato)
+    }
+
 }
 
-function flitrar(params) {
+function limpiar() {
+    let borradas = document.querySelectorAll('#paginacion a:not(.flechas)')
+    for (let i = borradas.length - 1; i >= 0; i--) {
+        paginas.removeChild(borradas[i])
+    }
+}
+
+function flitrar() {
     
 }
 

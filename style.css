@@ -1,17 +1,25 @@
-.paginacion {
+#paginacion {
     display: inline-block;
 }
   
-.paginacion a {
+#paginacion a {
     color: black;
     float: left;
     padding: 8px 16px;
     text-decoration: none;
 }
   
-.paginacion a.activo {
+#paginacion a.activa {
     background-color: #4CAF50;
     color: white;
 }
-  
-.pagination a:hover:not(.activo) {background-color: #ddd;}
+
+#paginacion a:hover:not(.activa) {background-color: #ddd;}
+
+section:nth-child(1) {
+    margin: 30px;
+}
+
+.invisible {
+    display: none;
+}

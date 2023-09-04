@@ -9,18 +9,22 @@
 </head>
 <body>
     <section>
-        <label for="filtrar">Filtrar pokemones: </label>
-        <input type="text" name="filtrar" id="filtrar">
+        <label for="filtrado">Filtrar pokemones: </label>
+        <input type="text" name="filtrado" id="filtrado">
+        <button type="button" onclick="filtrar();">Filtrar</button>
     </section>
-    <div class="paginacion">
-        <a href="#">« Anterior</a>
+    <div id="paginacion">
+        <a class="flechas" href="#">« Anterior</a>
         <a href="#">1</a>
         <a class="activa" href="#">2</a>
         <a href="#">3</a>
         <a href="#">4</a>
         <a href="#">5</a>
         <a href="#">6</a>
-        <a href="#">Siguiente »</a>
+        <a class="flechas" href="#">Siguiente »</a>
     </div>
+    <section id="lista">
+
+    </section>
 </body>
 </html>
